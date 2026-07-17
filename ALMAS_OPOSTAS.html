@@ -139,6 +139,29 @@
     60% { transform: translate(-3px,-2px); }
     80% { transform: translate(3px,2px); }
   }
+
+  #nav-link {
+    position: fixed;
+    top: 24px;
+    right: 20px;
+    z-index: 6;
+    transition: opacity 0.4s ease;
+  }
+  #nav-link.hidden { opacity: 0; pointer-events: none; }
+  #nav-link a {
+    color: #444;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    border: 1px solid #333;
+    padding: 6px 8px;
+    border-radius: 4px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  #nav-link a:hover {
+    color: #f0e68c;
+    border-color: #f0e68c;
+  }
 </style>
 </head>
 <body>
@@ -176,6 +199,8 @@
     </button>
   </div>
 
+  <div id="nav-link"><a href="index.html">← puros</a></div>
+
   <div id="home-sub">clique/toque em um coração</div>
 
   
@@ -196,6 +221,7 @@
   const home = document.getElementById('home');
   const title = document.getElementById('title');
   const sub = document.getElementById('home-sub');
+  const nav = document.getElementById('nav-link');
   const snd = document.getElementById('snd');
   let opened = false;
 
@@ -215,6 +241,7 @@
       home.classList.add('hidden');
       title.classList.add('hidden');
       sub.classList.add('hidden');
+      nav.classList.add('hidden');
       tile.querySelector('.icon-frame').classList.add('shake');
 
       snd.currentTime = 0;
@@ -230,6 +257,7 @@
         home.classList.remove('hidden');
         title.classList.remove('hidden');
         sub.classList.remove('hidden');
+        nav.classList.remove('hidden');
         tile.querySelector('.icon-frame').classList.remove('shake');
         opened = false;
       }, 6000);
