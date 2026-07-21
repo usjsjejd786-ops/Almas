@@ -452,6 +452,35 @@
   const snd = document.getElementById('snd');
   let opened = false;
   let typeTimer = null;
+  let closeFadeTimer = null;
+  let closeRestoreTimer = null;
+  let activeTile = null;
+
+  function closeSoulDialogue() {
+    if (!opened) return;
+    clearTimeout(closeFadeTimer);
+    clearTimeout(closeRestoreTimer);
+    clearInterval(typeTimer);
+
+    if (activeTile) {
+      const text = document.getElementById('text-' + activeTile.dataset.key);
+      if (text) text.classList.remove('show');
+      activeTile.querySelector('.icon-frame').classList.remove('shake');
+    }
+
+    home.classList.remove('hidden');
+    title.classList.remove('hidden');
+    sub.classList.remove('hidden');
+    nav.classList.remove('hidden');
+    loveHud.classList.remove('hidden');
+    stopSoulMusic();
+    opened = false;
+    activeTile = null;
+  }
+
+  document.addEventListener('dblclick', () => {
+    if (opened) closeSoulDialogue();
+  });
 
   // ======= HUD DE LOVE (compartilha contador com a página dos puros) =======
   const ALL_SOUL_KEYS = ['determination','bravery','perseverance','integrity','patience','kindness','justice',
@@ -646,6 +675,7 @@
     tile.addEventListener('click', () => {
       if (opened) return;
       opened = true;
+      activeTile = tile;
       const key = tile.dataset.key;
       const text = document.getElementById('text-' + key);
 
@@ -690,21 +720,12 @@
 
       text.classList.add('show');
 
-      setTimeout(() => {
+      closeFadeTimer = setTimeout(() => {
         text.classList.remove('show');
         clearInterval(typeTimer);
       }, 5000);
 
-      setTimeout(() => {
-        home.classList.remove('hidden');
-        title.classList.remove('hidden');
-        sub.classList.remove('hidden');
-        nav.classList.remove('hidden');
-        loveHud.classList.remove('hidden');
-        tile.querySelector('.icon-frame').classList.remove('shake');
-        stopSoulMusic();
-        opened = false;
-      }, 6000);
+      closeRestoreTimer = setTimeout(closeSoulDialogue, 6000);
     });
   });
 </script>
