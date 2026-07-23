@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>???</title>
+<style>
+/* ============================================================
+   LOJA SECRETA DO SPAMTON — folha de estilo
+   Grade 2x2: retrato | informações
+                diálogo | ações
+   ============================================================ */
+@font-face {
+  font-family: 'DeterminationLike';
+  src: local('Consolas'), local('Courier New');
+}
+
+:root{
+  --brick-1:#5fb3d9;
+  --brick-2:#79c3e6;
+  --brick-2-dark:#4a9fc7;
+  --mortar:#2c6f94;
+  --panel-bg:#000000;
+  --panel-edge:#ffffff;
+  --ink:#ffffff;
+  --kromer:#ffe95c;
+  --heart:#ff2b2b;
+  --warn:#ff5d5d;
+  --ok:#7dff8f;
+  --glitch-a:#ff2fb0;
+  --glitch-b:#22e0ff;
+}
+
+*{box-sizing:border-box;}
+html,body{
+  margin:0; padding:0; width:100%; height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family:'Courier New', 'DeterminationLike', monospace;
+  -webkit-user-select:none; user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ---------- Fundo de tijolos em pixel art (CSS puro) ---------- */
+#tijolos{
+  position:fixed; inset:0;
+  background-color:var(--brick-2);
+  background-image:
+    linear-gradient(var(--mortar) 2px, transparent 2px),
+    linear-gradient(90deg, var(--mortar) 2px, transparent 2px);
+  background-size: 64px 34px, 64px 34px;
+  image-rendering:pixelated;
+  z-index:0;
+}
+#tijolos::before{
+  /* fileiras alternadas deslocadas, como alvenaria */
+  content:"";
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--mortar) 2px, transparent 2px),
+    linear-gradient(90deg, var(--mortar) 2px, transparent 2px);
+  background-size: 64px 68px, 64px 68px;
+  background-position: 32px 0;
+  opacity:.7;
+}
+.mancha-amarela{
+  position:fixed; top:6%; left:4%;
+  width:220px; height:220px;
+  z-index:1; pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%, #fff4a0 0%, #ffe95c 35%, transparent 60%);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 12px #ffb400);
+  animation: manchaPisca 3.2s infinite ease-in-out;
+}
+@keyframes manchaPisca{ 0%,100%{opacity:.9;} 50%{opacity:.55;} }
+.rachadura{
+  position:fixed; z-index:1; pointer-events:none;
+  border-left:2px solid rgba(20,60,80,.55);
+  transform-origin: top;
+}
+.rachadura.r1{ top:30%; left:15%; height:110px; transform:rotate(9deg);}
+.rachadura.r2{ top:55%; left:12%; height:60px; transform:rotate(-14deg);}
+.rachadura.r3{ top:12%; left:22%; height:45px; transform:rotate(20deg);}
+
+/* ---------- Camada CRT ---------- */
+#crt{
+  position:fixed; inset:0; z-index:50; pointer-events:none;
+  background:repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 1px,
+    rgba(0,0,0,.18) 2px,
+    rgba(0,0,0,.18) 3px
+  );
+  mix-blend-mode:multiply;
+}
+#crt::after{
+  content:"";
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55) 100%);
+}
+#flicker{
+  position:fixed; inset:0; z-index:51; pointer-events:none;
+  background:#fff; opacity:0;
+}
+@keyframes crtFlicker{
+  0%,100%{opacity:0;}
+  92%{opacity:0;}
+  93%{opacity:.03;}
+  94%{opacity:0;}
+  97%{opacity:.05;}
+  98%{opacity:0;}
+}
+#crt{animation:none;}
+body.crt-on #crt{animation:none;}
+#flicker.ativo{animation:crtFlicker 6s infinite;}
+
+/* ---------- Partículas / poeira digital ---------- */
+#particulas{position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden;}
+.particula{
+  position:absolute; width:3px; height:3px; background:#fff; opacity:.6;
+  animation:flutuar linear infinite;
+}
+@keyframes flutuar{
+  0%{ transform:translateY(0) translateX(0); opacity:0;}
+  10%{opacity:.7;}
+  90%{opacity:.5;}
+  100%{ transform:translateY(-120vh) translateX(20px); opacity:0;}
+}
+
+/* ---------- Camada de transição cinematográfica ---------- */
+#cortina{
+  position:fixed; inset:0; z-index:200;
+  background:#000; opacity:1;
+  pointer-events:none;
+}
+#glitch-overlay{
+  position:fixed; inset:0; z-index:150; pointer-events:none;
+  opacity:0; mix-blend-mode:screen;
+}
+#glitch-overlay .faixa{
+  position:absolute; left:0; width:100%; height:6px;
+  background:var(--glitch-a);
+  opacity:.7;
+}
+
+/* ---------- Contêiner principal / grade 2x2 ---------- */
+#loja{
+  position:fixed; inset:0; z-index:5;
+  display:grid;
+  grid-template-columns: 1.15fr .85fr;
+  grid-template-rows: 1.05fr .95fr;
+  gap:0;
+  padding: clamp(8px, 2vw, 26px);
+  opacity:0;
+  transition:opacity .4s linear;
+}
+#loja.visivel{opacity:1;}
+
+.painel{
+  background:var(--panel-bg);
+  border:3px solid var(--panel-edge);
+  position:relative;
+  color:var(--ink);
+  overflow:hidden;
+  min-height:0; min-width:0;
+}
+/* enfeites de canto estilo Deltarune */
+.painel::before, .painel::after,
+.painel .canto-br, .painel .canto-bl{
+  content:""; position:absolute; width:14px; height:14px;
+  border:2px solid var(--panel-edge);
+}
+.painel::before{ top:-3px; left:-3px; border-right:none; border-bottom:none;}
+.painel::after{ top:-3px; right:-3px; border-left:none; border-bottom:none;}
+.painel .canto-br{ bottom:-3px; right:-3px; border-left:none; border-top:none;}
+.painel .canto-bl{ bottom:-3px; left:-3px; border-right:none; border-top:none;}
+
+#painel-personagem{ grid-column:1; grid-row:1; margin:0 4px 4px 0; display:flex; align-items:flex-end; justify-content:center;}
+#painel-info{ grid-column:2; grid-row:1; margin:0 0 4px 4px; padding:14px;}
+#painel-dialogo{ grid-column:1; grid-row:2; margin:0 4px 0 0; padding:14px; display:flex; flex-direction:column;}
+#painel-acoes{ grid-column:2; grid-row:2; margin:0 0 0 4px; padding:14px; display:flex; flex-direction:column;}
+
+/* ---------- Retrato do personagem ---------- */
+#sprite-wrap{
+  position:relative; height:100%; width:100%;
+  display:flex; align-items:flex-end; justify-content:center;
+  overflow:hidden;
+}
+#sprite-spamton{
+  image-rendering:pixelated;
+  max-height:118%;
+  filter:drop-shadow(0 0 18px rgba(255,255,255,.08));
+  transform:translateY(4%);
+  transition:filter .15s;
+}
+#sprite-spamton.glitching{
+  filter: drop-shadow(2px 0 var(--glitch-a)) drop-shadow(-2px 0 var(--glitch-b));
+}
+#sprite-spamton.balanco{ animation:balancoIdle 2.6s ease-in-out infinite; }
+@keyframes balancoIdle{
+  0%,100%{ transform:translateY(4%) rotate(0deg);}
+  50%{ transform:translateY(2%) rotate(-1deg);}
+}
+#nome-personagem{
+  position:absolute; top:8px; left:10px;
+  font-size:clamp(11px,1.4vw,15px);
+  letter-spacing:2px; opacity:.85;
+}
+
+/* ---------- Painel de informações ---------- */
+#painel-info h2{
+  margin:0 0 6px; font-size:clamp(13px,1.6vw,18px);
+  letter-spacing:1px;
+}
+#info-corpo{
+  font-size:clamp(11px,1.35vw,14px);
+  line-height:1.55;
+  white-space:pre-wrap;
+}
+.tag-item{
+  display:inline-block; border:1px solid #fff; padding:1px 6px;
+  font-size:10px; letter-spacing:1px; margin-right:6px; margin-bottom:6px;
+}
+
+/* ---------- Diálogo ---------- */
+#cursor-coracao{
+  color:var(--heart); margin-right:6px; display:inline-block;
+  animation:pulsarCoracao 1s infinite;
+}
+@keyframes pulsarCoracao{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.22);} }
+
+#caixa-texto{
+  flex:1; overflow-y:auto; font-size:clamp(12px,1.55vw,15px);
+  line-height:1.6; padding-right:4px;
+}
+#caixa-texto .linha-nome{ color:var(--kromer); letter-spacing:1px; margin-bottom:4px; }
+.destaque-glitch{
+  display:inline-block; color:var(--glitch-a);
+  animation:tremerPalavra .12s infinite;
+}
+@keyframes tremerPalavra{
+  0%{ transform:translate(0,0);}
+  25%{ transform:translate(1px,-1px);}
+  50%{ transform:translate(-1px,1px);}
+  75%{ transform:translate(1px,1px);}
+  100%{ transform:translate(0,0);}
+}
+.destaque-grande{ font-size:1.25em; display:inline-block; }
+
+#form-conversa{
+  display:flex; gap:6px; margin-top:8px; border-top:1px solid #444; padding-top:8px;
+}
+#input-conversa{
+  flex:1; background:#000; border:1px solid #fff; color:#fff;
+  font-family:inherit; font-size:clamp(11px,1.4vw,13px); padding:8px 10px;
+  outline:none;
+}
+#input-conversa:focus{ border-color:var(--kromer); }
+#btn-enviar{
+  background:#000; border:1px solid #fff; color:#fff; padding:8px 14px;
+  font-family:inherit; cursor:pointer; letter-spacing:1px;
+}
+#btn-enviar:hover{ background:#fff; color:#000; }
+
+/* ---------- Ações / menus ---------- */
+#kromer-contador{
+  font-size:clamp(13px,1.7vw,18px); color:var(--kromer);
+  letter-spacing:1px; margin-bottom:10px; text-align:right;
+}
+#kromer-contador b{ font-size:1.3em; }
+#kromer-contador.pulso{ animation:pulsoKromer .5s ease; }
+@keyframes pulsoKromer{ 0%{transform:scale(1);} 40%{transform:scale(1.18); color:#fff;} 100%{transform:scale(1);} }
+
+#menu-principal{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-top:auto;
+}
+.opcao-menu{
+  background:#000; border:1px solid #fff; color:#fff;
+  padding:10px 8px; text-align:left; cursor:pointer;
+  font-family:inherit; font-size:clamp(11px,1.5vw,14px); letter-spacing:1px;
+  position:relative;
+}
+.opcao-menu:hover, .opcao-menu.selecionada{
+  background:#fff; color:#000;
+}
+.opcao-menu .marcador{ color:var(--heart); margin-right:6px; visibility:hidden; }
+.opcao-menu.selecionada .marcador{ visibility:visible; }
+
+#area-secundaria{ flex:1; overflow-y:auto; margin-top:10px; }
+.item-loja{
+  display:flex; align-items:center; gap:10px;
+  border:1px solid #555; padding:8px; margin-bottom:8px;
+  cursor:pointer;
+}
+.item-loja:hover{ border-color:#fff; background:rgba(255,255,255,.06); }
+.item-loja .icone{
+  font-size:22px; width:30px; text-align:center; flex-shrink:0;
+}
+.item-loja .detalhes{ flex:1; }
+.item-loja .detalhes .nome{ font-weight:bold; font-size:13px; }
+.item-loja .detalhes .desc{ font-size:10.5px; color:#bbb; margin-top:2px; }
+.item-loja .preco{ color:var(--kromer); font-size:12px; white-space:nowrap; }
+.item-loja.sem-estoque{ opacity:.4; pointer-events:none; }
+
+#promo-texto{
+  font-size:clamp(11px,1.5vw,13px); line-height:1.5;
+  animation:promoPisca 1.4s infinite;
+}
+@keyframes promoPisca{ 0%,100%{opacity:1;} 50%{opacity:.55;} }
+.promo-selo{
+  display:inline-block; border:2px dashed var(--kromer); color:var(--kromer);
+  padding:4px 10px; margin-top:8px; font-size:11px; letter-spacing:1px;
+  transform:rotate(-3deg);
+}
+
+/* ---------- Botão flutuante para fechar ---------- */
+#btn-fechar{
+  position:fixed; top:10px; right:10px; z-index:60;
+  background:#000; color:#fff; border:1px solid #fff;
+  padding:6px 10px; font-family:inherit; font-size:11px;
+  letter-spacing:1px; cursor:pointer; opacity:.6;
+}
+#btn-fechar:hover{ opacity:1; }
+
+/* ---------- toast de compra/venda ---------- */
+#toast{
+  position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#000; border:1px solid var(--kromer); color:var(--kromer);
+  padding:8px 16px; font-size:12px; letter-spacing:1px;
+  z-index:60; opacity:0; pointer-events:none; transition:.25s;
+}
+#toast.mostrar{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ---------- Responsivo ---------- */
+@media (max-width:760px){
+  #loja{
+    grid-template-columns:1fr; grid-template-rows:auto auto auto auto;
+    padding:6px; overflow-y:auto; height:100%;
+  }
+  #painel-personagem{ grid-column:1; grid-row:1; margin:0 0 4px 0; height:34vh; }
+  #painel-info{ grid-column:1; grid-row:2; margin:0 0 4px 0; }
+  #painel-dialogo{ grid-column:1; grid-row:3; margin:0 0 4px 0; min-height:160px; }
+  #painel-acoes{ grid-column:1; grid-row:4; margin:0; }
+  html,body{ overflow-y:auto; }
+}
+
+/* ---------- Glitch de tela (evento raro) ---------- */
+body.tremendo{ animation: tremerTela .25s; }
+@keyframes tremerTela{
+  0%,100%{ transform:translate(0,0);}
+  20%{ transform:translate(-4px,2px);}
+  40%{ transform:translate(3px,-2px);}
+  60%{ transform:translate(-2px,-3px);}
+  80%{ transform:translate(4px,1px);}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== CENÁRIO DE FUNDO ===================== -->
+<div id="tijolos"></div>
+<div class="mancha-amarela"></div>
+<div class="rachadura r1"></div>
+<div class="rachadura r2"></div>
+<div class="rachadura r3"></div>
+<div id="particulas"></div>
+
+<!-- ===================== CAMADA CRT / GLITCH ===================== -->
+<div id="crt"></div>
+<div id="flicker" class="ativo"></div>
+<div id="glitch-overlay"></div>
+
+<!-- ===================== CORTINA (transição de entrada/saída) ===================== -->
+<div id="cortina"></div>
+
+<!-- ===================== INTERFACE DA LOJA (grade 2x2) ===================== -->
+<div id="loja">
+
+  <!-- Quadrante superior-esquerdo: retrato do personagem -->
+  <div id="painel-personagem" class="painel">
+    <div class="canto-br"></div><div class="canto-bl"></div>
+    <div id="nome-personagem">SP△MTON</div>
+    <div id="sprite-wrap">
+      <img id="sprite-spamton" src="assets/sprites/spamton_a.png" alt="Spamton">
+    </div>
+  </div>
+
+  <!-- Quadrante superior-direito: informações -->
+  <div id="painel-info" class="painel">
+    <div class="canto-br"></div><div class="canto-bl"></div>
+    <h2 id="info-titulo">100% CERTIFIED WAREZ</h2>
+    <div id="info-corpo">Bem-vindo(a) ao meu [[MODESTO]] estabelecimento subterrâneo. Tudo aqui é [[GENUÍNO]]! (Provavelmente.)</div>
+  </div>
+
+  <!-- Quadrante inferior-esquerdo: diálogo / inventário -->
+  <div id="painel-dialogo" class="painel">
+    <div class="canto-br"></div><div class="canto-bl"></div>
+    <div id="caixa-texto"></div>
+    <form id="form-conversa" autocomplete="off">
+      <span id="cursor-coracao">♥</span>
+      <input id="input-conversa" type="text" maxlength="120" placeholder="digite algo para o Spamton...">
+      <button id="btn-enviar" type="submit">FALAR</button>
+    </form>
+  </div>
+
+  <!-- Quadrante inferior-direito: ações / menu -->
+  <div id="painel-acoes" class="painel">
+    <div class="canto-br"></div><div class="canto-bl"></div>
+    <div id="kromer-contador">SALDO <b id="valor-kromer">0</b> KROMER</div>
+
+    <div id="area-secundaria">
+      <div id="promo-texto">
+        [[BIG]] [[SHOT]] PRECISA DE UMA MÃOZINHA?<br>
+        Escolha uma opção abaixo pra gente fechar negócio.
+        <div class="promo-selo">100% APROVADO*</div>
+      </div>
+    </div>
+
+    <div id="menu-principal">
+      <button class="opcao-menu selecionada" data-acao="conversar"><span class="marcador">♥</span>TALKING</button>
+      <button class="opcao-menu" data-acao="comprar"><span class="marcador">♥</span>BUY</button>
+      <button class="opcao-menu" data-acao="vender"><span class="marcador">♥</span>BUYMORE!!!</button>
+      <button class="opcao-menu" data-acao="sair"><span class="marcador">♥</span>ESCAPE</button>
+    </div>
+  </div>
+
+</div>
+
+<button id="btn-fechar" title="sair da loja (ESC)">ESCAPE ✕</button>
+<div id="toast"></div>
+
+<!-- ===================== ÁUDIO ===================== -->
+<audio id="audio-tema" src="assets/music/spamton-theme.mp3" preload="auto" loop></audio>
+<audio id="audio-fala" src="assets/sounds/spamton-talking.mp3" preload="auto" loop></audio>
+<audio id="audio-riso" src="assets/sounds/spamton-laugh.mp3" preload="auto"></audio>
+
+<script>
+/* ============================================================
+   LOJA SECRETA DO SPAMTON — lógica completa
+   Organização:
+     1. Config / constantes
+     2. Persistência (localStorage)
+     3. Sequência cinematográfica de entrada e saída
+     4. Animação do personagem (piscar, falar, olhar, idle)
+     5. Sistema de diálogo (typewriter + áudio + respostas)
+     6. Loja (comprar / vender / Kromer)
+     7. Menu de ações e navegação
+     8. Efeitos ambientais (partículas, glitch aleatório)
+     9. Inicialização
+   ============================================================ */
+
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------
+   1. CONFIG / CONSTANTES
+--------------------------------------------------------- */
+const CHAVE_SALVAMENTO = 'spamton_loja_save_v1';
+const SALDO_INICIAL = 200;
+
+// de onde o jogador veio (para o botão ESCAPE voltar corretamente)
+const PARAM_ORIGEM = new URLSearchParams(location.search).get('origem');
+const URL_RETORNO = PARAM_ORIGEM || (document.referrer && document.referrer.includes(location.host) ? document.referrer : 'index.html');
+
+const SPRITES = {
+  idleA: 'assets/sprites/spamton_a.png',
+  idleD: 'assets/sprites/spamton_d.png',
+  falaB: 'assets/sprites/spamton_b.png',
+  olharC: 'assets/sprites/spamton_c.png'
+};
+
+const ITENS_LOJA = [
+  {
+    id: 'lambskin',
+    nome: '[[LAMBSKIN]] ANEL',
+    desc: 'Aumenta seu charme em 300%. (Não testado clinicamente.)',
+    preco: 50,
+    icone: '💍',
+    efeito: 'charme',
+    comentarioCompra: 'AH, ÓTIMA ESCOLHA!! ESSE ANEL JÁ FEZ MARAVILHAS PRA MIM. [[PROVAVELMENTE]].',
+    comentarioVenda: 'VOCÊ QUER VENDER DE VOLTA?? Tá bom... [[REEMBOLSO PARCIAL]] ativado.'
+  },
+  {
+    id: 'bigshot',
+    nome: 'CARTÃO [[BIG SHOT]]',
+    desc: 'Um cartão de visitas. Ele mesmo escreveu. Ele mesmo assinou.',
+    preco: 20,
+    icone: '🃏',
+    efeito: 'status',
+    comentarioCompra: 'AGORA VOCÊ TAMBÉM É UM [[BIG SHOT]] HONORÁRIO!! PARABÉNS!!',
+    comentarioVenda: 'DEVOLVENDO O CARTÃO?? EU... EU ENTENDO. NEM TODO MUNDO SABE LIDAR COM GRANDEZA.'
+  },
+  {
+    id: 'freio',
+    nome: 'FREIOS [[QUEBRADOS]]',
+    desc: 'Não seguram nada. Item puramente decorativo. Ou não.',
+    preco: 66,
+    icone: '⚙️',
+    efeito: 'caotico',
+    comentarioCompra: 'HAHAHA!! SEM FREIOS, SEM LIMITES!! É ASSIM QUE EU VIVO TODO DIA!!',
+    comentarioVenda: 'CONSERTOU OS FREIOS?? QUE DESPERDÍCIO DE POTENCIAL.'
+  },
+  {
+    id: 'fio',
+    nome: 'FIO DE MARIONETE',
+    desc: 'Um fiozinho fino. Brilha estranho sob a luz.',
+    preco: 999,
+    icone: '🧵',
+    efeito: 'raro',
+    comentarioCompra: 'INTERESSANTE ESCOLHA... VOCÊ TEM [[BOM GOSTO]] PRA COISAS QUE TE PRENDEM.',
+    comentarioVenda: 'HM. ESSE AQUI NÃO SE VENDE FÁCIL DE VOLTA. MAS... TUDO BEM. TRATO É TRATO.'
+  },
+  {
+    id: 'refri',
+    nome: 'REFRIGERANTE [[100% CERT.]]',
+    desc: 'Sabor misterioso. Talvez seja só água com corante.',
+    preco: 10,
+    icone: '🥤',
+    efeito: 'consumivel',
+    comentarioCompra: 'BOA ESCOLHA PRA MATAR A SEDE DE UM [[GRANDE FUTURO]]!!',
+    comentarioVenda: 'JÁ TINHA ABERTO ESSE?? ENFIM... METADE DO VALOR, NEGÓCIO É NEGÓCIO.'
+  },
+  {
+    id: 'chapeu',
+    nome: 'CHAPÉU DESGASTADO',
+    desc: 'Cheira a pó de estrela e promessas antigas.',
+    preco: 140,
+    icone: '🎩',
+    efeito: 'nostalgico',
+    comentarioCompra: '...ESSE AQUI É ESPECIAL PRA MIM. CUIDE BEM DELE, TÁ?',
+    comentarioVenda: 'VOCÊ QUER DEVOLVER O CHAPÉU? ...[[TUDO BEM]]. EU ENTENDO.'
+  }
+];
+
+/* respostas fixas por palavra-chave (case-insensitive, sem acento) */
+const RESPOSTAS_FIXAS = [
+  { chaves:['oi','ola','olá','hey','eae'], respostas:[
+    'HEY HEY HEY!! [[NOVO CLIENTE]] NA LOJA!! BEM-VINDO(A)!!',
+    'OOOH, OLHA SÓ QUEM CHEGOU!! ENTRE, ENTRE, FIQUE À VONTADE!!'
+  ]},
+  { chaves:['quem e voce','quem é você','quem e vc','seu nome'], respostas:[
+    'EU SOU O [[MAIOR VENDEDOR DE 1997]]!! SPAMTON, PRA SERVIR!!',
+    'AH, VOCÊ NÃO SABE QUEM EU SOU?? EU SOU [[LENDÁRIO]]. OU SEREI. EM BREVE.'
+  ]},
+  { chaves:['kris'], respostas:[
+    'KRIS?? AH, EU CONHEÇO ESSE NOME... [[INTERESSANTE]] VOCÊ TOCAR NESSE ASSUNTO.',
+    'NÃO SEI DE NENHUM [[KRIS]]. [[NUNCA OUVI FALAR]]. [[DE JEITO NENHUM]].'
+  ]},
+  { chaves:['dinheiro','kromer'], respostas:[
+    'DINHEIRO?? AH, VOCÊ VEIO AO LUGAR CERTO!! KROMER É A MOEDA DO [[FUTURO]]!!',
+    'TODOS PRECISAM DE KROMER. ATÉ VOCÊ. ATÉ EU. ESPECIALMENTE EU.'
+  ]},
+  { chaves:['gaster'], respostas:[
+    '[[ERRO]] ESSE NOME NÃO ESTÁ NO MEU [[BANCO DE DADOS]]... ESPERA, POR QUE EU TREMI??'
+  ]},
+  { chaves:['sans'], respostas:[
+    'AH, O CARINHA DOS TROCADILHOS?? ELE TEM UM [[HUMOR ÓSSEO]] BEM PARTICULAR.'
+  ]},
+  { chaves:['comprar','loja','vender'], respostas:[
+    'QUER FAZER NEGÓCIO?? CLIQUE EM [[BUY]] OU [[BUYMORE!!!]] AÍ DO LADO!!'
+  ]},
+  { chaves:['ajuda','help'], respostas:[
+    'AJUDA?? EU SOU A PRÓPRIA DEFINIÇÃO DE AJUDA!! (TERMOS E CONDIÇÕES SE APLICAM.)'
+  ]},
+  { chaves:['obrigado','obrigada','valeu'], respostas:[
+    'AAAW, NÃO PRECISA AGRADECER!! ISSO É [[BOM PRA NEGÓCIOS]] DE QUALQUER FORMA!!'
+  ]},
+  { chaves:['tchau','sair','adeus'], respostas:[
+    'JÁ VAI?? TUDO BEM... A PORTA [[SEMPRE]] ESTARÁ ABERTA. SEMPRE.'
+  ]},
+  { chaves:['triste','sozinho','sozinha'], respostas:[
+    '...AH. EU... EU SEI COMO É ISSO. MAS AQUI, NINGUÉM FICA SOZINHO. NINGUÉM MESMO.'
+  ]},
+];
+
+const RESPOSTAS_ALEATORIAS = [
+  'HAHA!! BOA PERGUNTA!! [[TALVEZ]] EU RESPONDA UM DIA DESSES!!',
+  'HMM... ISSO SOA COMO ALGO QUE UM [[GRANDE NEGOCIANTE]] SABERIA. E EU SEI!! PROVAVELMENTE!!',
+  '[[BUZZ]] [[BUZZ]] DESCULPA, TIVE UM PEQUENO... PROBLEMA TÉCNICO.',
+  'OLHA, ISSO NÃO TÁ NO MEU SCRIPT, MAS EU VOU IMPROVISAR: [[SIM]]. OU [[NÃO]]. DEFINITIVAMENTE UM DOS DOIS.',
+  'VOCÊ FALA DEMAIS PRA ALGUÉM QUE AINDA NÃO COMPROU NADA... [[BRINCADEIRA]]!! OU NÃO.'
+];
+
+/* ---------------------------------------------------------
+   2. PERSISTÊNCIA
+--------------------------------------------------------- */
+function carregarSalvamento(){
+  try{
+    const bruto = localStorage.getItem(CHAVE_SALVAMENTO);
+    if(!bruto) throw 0;
+    const dados = JSON.parse(bruto);
+    if(typeof dados.kromer !== 'number') throw 0;
+    return dados;
+  }catch(e){
+    return { kromer: SALDO_INICIAL, inventario:{}, historico:[], visitas:0 };
+  }
+}
+function salvar(){
+  localStorage.setItem(CHAVE_SALVAMENTO, JSON.stringify(estado));
+}
+
+let estado = carregarSalvamento();
+estado.visitas = (estado.visitas||0) + 1;
+salvar();
+
+/* ---------------------------------------------------------
+   Referências de elementos
+--------------------------------------------------------- */
+const elCortina = document.getElementById('cortina');
+const elLoja = document.getElementById('loja');
+const elGlitchOverlay = document.getElementById('glitch-overlay');
+const elSprite = document.getElementById('sprite-spamton');
+const elCaixaTexto = document.getElementById('caixa-texto');
+const elInputConversa = document.getElementById('input-conversa');
+const elFormConversa = document.getElementById('form-conversa');
+const elAreaSecundaria = document.getElementById('area-secundaria');
+const elInfoTitulo = document.getElementById('info-titulo');
+const elInfoCorpo = document.getElementById('info-corpo');
+const elValorKromer = document.getElementById('valor-kromer');
+const elKromerContador = document.getElementById('kromer-contador');
+const elMenuPrincipal = document.getElementById('menu-principal');
+const elBtnFechar = document.getElementById('btn-fechar');
+const elToast = document.getElementById('toast');
+
+const audioTema = document.getElementById('audio-tema');
+const audioFala = document.getElementById('audio-fala');
+const audioRiso = document.getElementById('audio-riso');
+
+/* ---------------------------------------------------------
+   3. SEQUÊNCIA CINEMATOGRÁFICA
+--------------------------------------------------------- */
+function tocarComPromessa(elemento){
+  const p = elemento.play();
+  if(p && p.catch) p.catch(()=>{ /* autoplay bloqueado — aguardando interação */ });
+}
+
+function criarFaixasGlitch(qtd){
+  elGlitchOverlay.innerHTML = '';
+  for(let i=0;i<qtd;i++){
+    const f = document.createElement('div');
+    f.className = 'faixa';
+    f.style.top = (Math.random()*100)+'%';
+    f.style.height = (2+Math.random()*10)+'px';
+    f.style.background = Math.random()>.5 ? 'var(--glitch-a)' : 'var(--glitch-b)';
+    f.style.transform = 'translateX('+(Math.random()*40-20)+'px)';
+    elGlitchOverlay.appendChild(f);
+  }
+}
+
+async function sequenciaDeEntrada(){
+  // tela preta -> tremores -> glitch -> escurece -> revela loja
+  document.body.classList.add('tremendo');
+  elGlitchOverlay.style.opacity = '1';
+  criarFaixasGlitch(9);
+
+  await pausa(180);
+  document.body.classList.remove('tremendo');
+  await pausa(220);
+  document.body.classList.add('tremendo');
+  criarFaixasGlitch(14);
+  await pausa(260);
+  document.body.classList.remove('tremendo');
+
+  await pausa(300);
+  elGlitchOverlay.style.transition = 'opacity .5s';
+  elGlitchOverlay.style.opacity = '0';
+
+  // cortina abre revelando a loja
+  elCortina.style.transition = 'opacity 1.1s ease-out';
+  elCortina.style.opacity = '0';
+  await pausa(200);
+  elLoja.classList.add('visivel');
+
+  tocarComPromessa(audioTema);
+  audioTema.volume = 0;
+  fadeVolume(audioTema, 0, 0.55, 1800);
+
+  await pausa(500);
+  iniciarSprite();
+  iniciarParticulas();
+  await pausa(400);
+  falarSpamton(mensagemBoasVindas(), { tipo:'entrada' });
+}
+
+async function sequenciaDeSaida(){
+  pararTypewriter();
+  elMenuPrincipal.querySelectorAll('.opcao-menu').forEach(b=>b.disabled=true);
+  elBtnFechar.disabled = true;
+
+  fadeVolume(audioTema, audioTema.volume, 0, 700);
+  audioFala.pause();
+
+  elGlitchOverlay.style.transition = 'opacity .25s';
+  elGlitchOverlay.style.opacity = '1';
+  criarFaixasGlitch(16);
+  document.body.classList.add('tremendo');
+
+  await pausa(260);
+
+  elCortina.style.transition = 'opacity .8s ease-in';
+  elCortina.style.opacity = '1';
+  elLoja.style.transition = 'opacity .5s';
+  elLoja.style.opacity = '0';
+
+  await pausa(850);
+  irParaOrigem();
+}
+
+function irParaOrigem(){
+  try{
+    window.location.href = URL_RETORNO;
+  }catch(e){
+    window.location.href = 'index.html';
+  }
+}
+
+function pausa(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+function fadeVolume(audioEl, de, para, duracaoMs){
+  const passos = 24;
+  const intervalo = duracaoMs / passos;
+  let i = 0;
+  audioEl.volume = de;
+  const id = setInterval(()=>{
+    i++;
+    const t = i/passos;
+    audioEl.volume = de + (para-de)*t;
+    if(i>=passos){
+      clearInterval(id);
+      audioEl.volume = para;
+      if(para===0) audioEl.pause();
+    }
+  }, intervalo);
+}
+
+/* ---------------------------------------------------------
+   4. ANIMAÇÃO DO PERSONAGEM
+--------------------------------------------------------- */
+let intervaloIdle = null;
+let falando = false;
+
+function iniciarSprite(){
+  elSprite.classList.add('balanco');
+  elSprite.src = SPRITES.idleA;
+  agendarProximoGesto();
+}
+
+function agendarProximoGesto(){
+  clearTimeout(intervaloIdle);
+  const espera = 1400 + Math.random()*2600;
+  intervaloIdle = setTimeout(()=>{
+    if(!falando) gestoAleatorio();
+    agendarProximoGesto();
+  }, espera);
+}
+
+function gestoAleatorio(){
+  const r = Math.random();
+  if(r < 0.45){
+    // piscar rápido
+    elSprite.src = SPRITES.olharC;
+    setTimeout(()=>{ if(!falando) elSprite.src = SPRITES.idleA; }, 120);
+  } else if (r < 0.8){
+    // olhar para o lado
+    elSprite.src = SPRITES.idleD;
+    setTimeout(()=>{ if(!falando) elSprite.src = SPRITES.idleA; }, 500);
+  } else {
+    // pequeno glitch idle (fun value alto)
+    elSprite.classList.add('glitching');
+    setTimeout(()=> elSprite.classList.remove('glitching'), 220);
+  }
+}
+
+let quadroFalaId = null;
+function iniciarAnimacaoFala(){
+  falando = true;
+  let alterna = false;
+  quadroFalaId = setInterval(()=>{
+    alterna = !alterna;
+    elSprite.src = alterna ? SPRITES.falaB : SPRITES.idleA;
+  }, 150);
+}
+function pararAnimacaoFala(){
+  falando = false;
+  clearInterval(quadroFalaId);
+  elSprite.src = SPRITES.idleA;
+}
+
+/* ---------------------------------------------------------
+   5. SISTEMA DE DIÁLOGO
+--------------------------------------------------------- */
+let filaTypewriter = Promise.resolve();
+let cancelarDigitacao = false;
+
+function normalizarTexto(t){
+  return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function mensagemBoasVindas(){
+  const boasVindas = [
+    'OOOOH!! FINALMENTE ALGUÉM DISCOU O NÚMERO CERTO!! BEM-VINDO(A) À MINHA [[LOJA SECRETA]]!!',
+    'HEY HEY HEY!! [[100% CERTIFICADO]]!! VOCÊ ACHOU O MEU CANTINHO ESCONDIDO!!',
+    'AAAH, [[VISITANTE]]!! ENTRE, ENTRE!! TENHO OFERTAS QUE VOCÊ [[NÃO VAI ACREDITAR]]!!'
+  ];
+  return boasVindas[Math.floor(Math.random()*boasVindas.length)];
+}
+
+function processarTagsDeTexto(texto){
+  // envolve [[palavra]] em spans com efeitos de glitch, mantendo colchetes visíveis
+  const frag = document.createDocumentFragment();
+  const partes = texto.split(/(\[\[[^\]]+\]\])/g);
+  partes.forEach(parte=>{
+    if(/^\[\[[^\]]+\]\]$/.test(parte)){
+      const span = document.createElement('span');
+      span.className = Math.random() > 0.5 ? 'destaque-glitch' : 'destaque-grande';
+      span.textContent = parte;
+      frag.appendChild(span);
+    } else {
+      frag.appendChild(document.createTextNode(parte));
+    }
+  });
+  return frag;
+}
+
+function pararTypewriter(){
+  cancelarDigitacao = true;
+  pararAnimacaoFala();
+  audioFala.pause();
+  audioFala.currentTime = 0;
+}
+
+function falarSpamton(texto, opts){
+  opts = opts||{};
+  filaTypewriter = filaTypewriter.then(()=> digitarLinha(texto, opts));
+  return filaTypewriter;
+}
+
+function digitarLinha(texto, opts){
+  return new Promise(resolve=>{
+    cancelarDigitacao = false;
+
+    const linha = document.createElement('div');
+    linha.className = 'linha-falada';
+    const nomeEl = document.createElement('div');
+    nomeEl.className = 'linha-nome';
+    nomeEl.textContent = '[SPAMTON]';
+    const corpoEl = document.createElement('div');
+    linha.appendChild(nomeEl);
+    linha.appendChild(corpoEl);
+    elCaixaTexto.appendChild(linha);
+    elCaixaTexto.scrollTop = elCaixaTexto.scrollHeight;
+
+    // decide onde inserir tags de destaque nas palavras já digitadas
+    const marcado = marcarPalavrasAleatorias(texto);
+
+    iniciarAnimacaoFala();
+    tocarComPromessa(audioFala);
+
+    // ocasional risada durante a fala
+    const vaiRir = /haha|hehe|risad/i.test(texto) || Math.random() < 0.18;
+    let jaRiu = false;
+
+    let i = 0;
+    function proximoCaractere(){
+      if(cancelarDigitacao){ finalizar(); return; }
+      if(i >= marcado.length){ finalizar(); return; }
+
+      corpoEl.innerHTML = '';
+      corpoEl.appendChild(processarTagsDeTexto(marcado.slice(0, i+1)));
+      elCaixaTexto.scrollTop = elCaixaTexto.scrollHeight;
+
+      const ch = marcado[i];
+      i++;
+
+      if(vaiRir && !jaRiu && i > marcado.length*0.55 && /\s/.test(ch)){
+        jaRiu = true;
+        tocarComPromessa(audioRiso);
+      }
+
+      // velocidade varia — pausas maiores em pontuação
+      let atraso = 26 + Math.random()*22;
+      if(/[,]/.test(ch)) atraso += 90;
+      if(/[.!?]/.test(ch)) atraso += 220;
+      setTimeout(proximoCaractere, atraso);
+    }
+    proximoCaractere();
+
+    function finalizar(){
+      pararAnimacaoFala();
+      audioFala.pause();
+      audioFala.currentTime = 0;
+      resolve();
+    }
+  });
+}
+
+function marcarPalavrasAleatorias(texto){
+  // já vem com [[..]] do dicionário; apenas retorna como está
+  return texto;
+}
+
+function respostaParaEntrada(entradaOriginal){
+  const entrada = normalizarTexto(entradaOriginal.trim());
+  if(!entrada) return null;
+
+  for(const bloco of RESPOSTAS_FIXAS){
+    for(const chave of bloco.chaves){
+      if(entrada.includes(normalizarTexto(chave))){
+        const opcoes = bloco.respostas;
+        return opcoes[Math.floor(Math.random()*opcoes.length)];
+      }
+    }
+  }
+  // verifica se pergunta é sobre item da loja
+  for(const item of ITENS_LOJA){
+    if(entrada.includes(normalizarTexto(item.id)) || entrada.includes(normalizarTexto(item.nome.replace(/\[\[|\]\]/g,'')))){
+      return `AAH, O ${item.nome}?? ${item.desc} SÓ ${item.preco} KROMER!! [[NEGÓCIO DO SÉCULO]]!!`;
+    }
+  }
+  if(Math.random() < 0.22){
+    return '[[ERRO]] ESSA PERGUNTA NÃO ESTÁ NO MEU [[BANCO DE DADOS]]!! ...MAS EU TENHO UMA RESPOSTA GENÉRICA PRA ISSO:';
+  }
+  return RESPOSTAS_ALEATORIAS[Math.floor(Math.random()*RESPOSTAS_ALEATORIAS.length)];
+}
+
+elFormConversa.addEventListener('submit', function(ev){
+  ev.preventDefault();
+  const texto = elInputConversa.value;
+  if(!texto.trim()) return;
+  elInputConversa.value = '';
+
+  const linhaJogador = document.createElement('div');
+  linhaJogador.className = 'linha-jogador';
+  linhaJogador.style.color = '#8fd0ff';
+  linhaJogador.style.margin = '6px 0';
+  linhaJogador.textContent = '> ' + texto;
+  elCaixaTexto.appendChild(linhaJogador);
+  elCaixaTexto.scrollTop = elCaixaTexto.scrollHeight;
+
+  estado.historico = estado.historico || [];
+  estado.historico.push({ q: texto, t: Date.now() });
+  if(estado.historico.length > 40) estado.historico.shift();
+  salvar();
+
+  const resposta = respostaParaEntrada(texto);
+  if(resposta) falarSpamton(resposta);
+});
+
+/* ---------------------------------------------------------
+   6. LOJA — COMPRAR / VENDER / KROMER
+--------------------------------------------------------- */
+function atualizarKromerVisual(){
+  elValorKromer.textContent = estado.kromer;
+  elKromerContador.classList.remove('pulso');
+  void elKromerContador.offsetWidth;
+  elKromerContador.classList.add('pulso');
+}
+
+function mostrarToast(msg){
+  elToast.textContent = msg;
+  elToast.classList.add('mostrar');
+  clearTimeout(mostrarToast._t);
+  mostrarToast._t = setTimeout(()=> elToast.classList.remove('mostrar'), 1800);
+}
+
+function renderizarComprar(){
+  elAreaSecundaria.innerHTML = '';
+  ITENS_LOJA.forEach(item=>{
+    const jaTem = (estado.inventario[item.id]||0) > 0;
+    const div = document.createElement('div');
+    div.className = 'item-loja';
+    div.innerHTML = `
+      <div class="icone">${item.icone}</div>
+      <div class="detalhes">
+        <div class="nome">${item.nome}</div>
+        <div class="desc">${item.desc}</div>
+      </div>
+      <div class="preco">${item.preco} K</div>
+    `;
+    div.addEventListener('click', ()=> comprarItem(item));
+    elAreaSecundaria.appendChild(div);
+  });
+}
+
+function renderizarVender(){
+  elAreaSecundaria.innerHTML = '';
+  const posses = Object.keys(estado.inventario).filter(id => estado.inventario[id] > 0);
+  if(posses.length === 0){
+    elAreaSecundaria.innerHTML = '<div id="promo-texto">VOCÊ NÃO TEM NADA PRA VENDER... AINDA. VÁ EM [[BUY]] PRIMEIRO!!</div>';
+    return;
+  }
+  posses.forEach(id=>{
+    const item = ITENS_LOJA.find(i=>i.id===id);
+    if(!item) return;
+    const qtd = estado.inventario[id];
+    const valorVenda = Math.max(1, Math.floor(item.preco*0.5));
+    const div = document.createElement('div');
+    div.className = 'item-loja';
+    div.innerHTML = `
+      <div class="icone">${item.icone}</div>
+      <div class="detalhes">
+        <div class="nome">${item.nome} (x${qtd})</div>
+        <div class="desc">${item.desc}</div>
+      </div>
+      <div class="preco">+${valorVenda} K</div>
+    `;
+    div.addEventListener('click', ()=> venderItem(item, valorVenda));
+    elAreaSecundaria.appendChild(div);
+  });
+}
+
+function comprarItem(item){
+  if(estado.kromer < item.preco){
+    falarSpamton('OPA!! VOCÊ NÃO TEM [[KROMER]] SUFICIENTE PRA ISSO. VOLTE QUANDO ESTIVER MAIS [[RICO]]!!');
+    mostrarToast('KROMER INSUFICIENTE');
+    return;
+  }
+  estado.kromer -= item.preco;
+  estado.inventario[item.id] = (estado.inventario[item.id]||0) + 1;
+  salvar();
+  atualizarKromerVisual();
+  mostrarToast(`+1 ${item.nome.replace(/\[\[|\]\]/g,'')}`);
+  falarSpamton(item.comentarioCompra);
+  renderizarComprar();
+}
+
+function venderItem(item, valor){
+  if((estado.inventario[item.id]||0) <= 0) return;
+  estado.inventario[item.id] -= 1;
+  estado.kromer += valor;
+  salvar();
+  atualizarKromerVisual();
+  mostrarToast(`+${valor} KROMER`);
+  falarSpamton(item.comentarioVenda);
+  renderizarVender();
+}
+
+/* ---------------------------------------------------------
+   7. MENU DE AÇÕES
+--------------------------------------------------------- */
+function selecionarAba(acao){
+  elMenuPrincipal.querySelectorAll('.opcao-menu').forEach(b=>{
+    b.classList.toggle('selecionada', b.dataset.acao === acao);
+  });
+
+  if(acao === 'conversar'){
+    elInfoTitulo.textContent = 'TALKING';
+    elInfoCorpo.textContent = 'Fale com o Spamton digitando algo na caixa de texto ao lado.';
+    elAreaSecundaria.innerHTML = `<div id="promo-texto">
+      [[BIG]] [[SHOT]] PRECISA DE UMA MÃOZINHA?<br>
+      Escolha uma opção abaixo pra gente fechar negócio.
+      <div class="promo-selo">100% APROVADO*</div>
+    </div>`;
+    elInputConversa.focus();
+  } else if(acao === 'comprar'){
+    elInfoTitulo.textContent = 'BUY';
+    elInfoCorpo.textContent = 'Itens [[100% CERTIFICADOS]] à venda. Clique para comprar.';
+    renderizarComprar();
+  } else if(acao === 'vender'){
+    elInfoTitulo.textContent = 'BUYMORE!!!';
+    elInfoCorpo.textContent = 'Venda seus itens de volta por metade do valor. Clique para vender.';
+    renderizarVender();
+  } else if(acao === 'sair'){
+    sequenciaDeSaida();
+  }
+}
+
+elMenuPrincipal.querySelectorAll('.opcao-menu').forEach(btn=>{
+  btn.addEventListener('click', ()=> selecionarAba(btn.dataset.acao));
+});
+elBtnFechar.addEventListener('click', sequenciaDeSaida);
+
+document.addEventListener('keydown', (ev)=>{
+  if(ev.key === 'Escape') sequenciaDeSaida();
+});
+
+/* ---------------------------------------------------------
+   8. EFEITOS AMBIENTAIS
+--------------------------------------------------------- */
+function iniciarParticulas(){
+  const container = document.getElementById('particulas');
+  const qtd = window.innerWidth < 700 ? 10 : 22;
+  for(let i=0;i<qtd;i++){
+    const p = document.createElement('div');
+    p.className = 'particula';
+    p.style.left = Math.random()*100+'%';
+    p.style.bottom = -10+'px';
+    p.style.animationDuration = (7+Math.random()*10)+'s';
+    p.style.animationDelay = (Math.random()*10)+'s';
+    container.appendChild(p);
+  }
+}
+
+// glitch ambiente raro (independente da fala)
+setInterval(()=>{
+  if(Math.random() < 0.06){
+    document.body.classList.add('tremendo');
+    criarFaixasGlitch(4);
+    elGlitchOverlay.style.transition = 'opacity .1s';
+    elGlitchOverlay.style.opacity = '.5';
+    setTimeout(()=>{
+      elGlitchOverlay.style.opacity = '0';
+      document.body.classList.remove('tremendo');
+    }, 160);
+  }
+}, 4200);
+
+/* ---------------------------------------------------------
+   9. INICIALIZAÇÃO
+--------------------------------------------------------- */
+atualizarKromerVisual();
+
+// primeira interação do usuário libera o áudio em navegadores que bloqueiam autoplay
+let jaIniciou = false;
+function iniciarTudo(){
+  if(jaIniciou) return;
+  jaIniciou = true;
+  sequenciaDeEntrada();
+}
+
+// tenta iniciar automaticamente; se o navegador bloquear o áudio,
+// aguarda o primeiro toque/clique/tecla pra iniciar de fato.
+window.addEventListener('load', ()=>{
+  iniciarTudo();
+  document.addEventListener('pointerdown', ()=>{
+    tocarComPromessa(audioTema);
+  }, { once:true });
+});
+
+})();
+</script>
+</body>
+</html>
